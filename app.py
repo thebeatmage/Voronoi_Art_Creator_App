@@ -106,11 +106,11 @@ def generate_diagram():
                                          colorMap1=colorList1,colorMap2=colorList2, colorMap3=colorList3, 
                                          chosen_filename=chosen_filename)
         
-        # Save the image to a temporary file , delete=False, dir='//fs1/Fullfillment_Analytics/Dustin/Voronoi Creator App/PNG/'
-        with tempfile.NamedTemporaryFile(suffix='.png', delete=False, dir='//fs1/Fullfillment_Analytics/Dustin/Voronoi Creator App/PNG/') as f:
+        # Save the image to a temporary file 
+        with tempfile.NamedTemporaryFile(suffix='.png') as f:
             image.save(f, 'PNG')
             f.seek(0)
-            return send_file(f.name, mimetype='image/png')
+            return send_file(f, mimetype='image/png')
     else:
         # Render the form template
         return render_template('form.html')

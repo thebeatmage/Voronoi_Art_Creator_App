@@ -107,10 +107,10 @@ def generate_diagram():
                                          chosen_filename=chosen_filename)
         
         # Save the image to a temporary file 
-        with tempfile.NamedTemporaryFile(suffix='.png') as f:
+        with tempfile.NamedTemporaryFile(suffix='.png', delete=False, dir='./PNG/') as f:
             image.save(f, 'PNG')
             f.seek(0)
-            return send_file(f, mimetype='image/png')
+            return send_file(f.name, mimetype='image/png')
     else:
         # Render the form template
         return render_template('form.html')

@@ -2,6 +2,7 @@
   <head>
     <title>Voronoi Diagram Generator</title>
     <!-- Add any additional CSS or JavaScript here -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='main.css') }}" />
   </head>
   <body>
     <h1>Voronoi Diagram Generator</h1>
@@ -16,10 +17,10 @@
       <input type="number" id="width" name="width" value="1920"><br>
       <label for="height">Height:</label><br>
       <input type="number" id="height" name="height" value="1080"><br>
-      <label for="num_cells">Number of cells:</label><br>
+      <label for="num_cells">Number of Cells:</label><br>
       <input type="number" id="num_cells" name="num_cells" value="56"><br>
-      <label for="chosen_filename">Output Filename:</label><br>
-      <input type="text" id="chosen_filename" name="chosen_filename"><br><br>
+      <label for="blend_multiplier">Blend Multiplier:</label><br>
+      <input type="number" id="blend_multiplier" name="blend_multiplier" value="1"><br><br>
       <input type="submit" value="Generate Diagram">
     </form> 
   </body>

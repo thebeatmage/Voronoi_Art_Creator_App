@@ -1,5 +1,4 @@
-from flask import Flask, request, redirect, render_template, send_file
-#from werkzeug.utils import send_file
+from flask import Flask, request, render_template, send_file
 from PIL import Image, ImageFilter, ImageColor
 import tempfile
 import random
@@ -9,13 +8,10 @@ from matplotlib import pyplot as plt
 
 app = Flask(__name__)
 
-# Ideas for More Features:
-#   -Blend Multiplier?
-
 app.debug = False
 
 def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, stdv_y,
-                             colorMap1, colorMap2, colorMap3, chosen_filename):
+                             colorMap1, colorMap2, colorMap3, blend_multiplier):
 
     # Combine Color Maps:
     colorMapCom1 = [colorMap1, colorMap2, colorMap3]
@@ -26,9 +22,10 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
     colorPallette2 = 'blend:' + ','.join(colorMapCom2)
     colorPallette3 = 'blend:' + ','.join(colorMapCom3)
 
-    colorNumber1 = len(colorMapCom1)
-    colorNumber2 = len(colorMapCom2)
-    colorNumber3 = len(colorMapCom3)
+    if blend_multiplier > 256:
+        blend_number = 256
+    else:
+        blend_number = blend_multiplier
 
     # Create variable instances
     image = Image.new("RGB", (width, height))
@@ -41,9 +38,9 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
     nb = []
 
     # Define color palettes (For Linked Color Palletes)
-    colors1 = sns.color_palette(colorPallette1, colorNumber1)
-    colors2 = sns.color_palette(colorPallette2, colorNumber2)
-    colors3 = sns.color_palette(colorPallette3, colorNumber3)
+    colors1 = sns.color_palette(colorPallette1, blend_number)
+    colors2 = sns.color_palette(colorPallette2, blend_number)
+    colors3 = sns.color_palette(colorPallette3, blend_number)
     
     # Define sites and colors for each site
     for i in range(num_cells):
@@ -51,11 +48,11 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
         ny.append(int(random.gauss(mean_y, stdv_y)))
         
         if i%2 == 0:
-            temp_color = colors1[random.randrange(0, colorNumber1)]
+            temp_color = colors1[random.randrange(0, blend_number)]
         elif i%3 == 0:
-            temp_color = colors2[random.randrange(0, colorNumber2)]
+            temp_color = colors2[random.randrange(0, blend_number)]
         else:
-            temp_color = colors3[random.randrange(0, colorNumber3)]
+            temp_color = colors3[random.randrange(0, blend_number)]
             
         nr.append(int(temp_color[0]*256))
         ng.append(int(temp_color[1]*256))
@@ -74,16 +71,8 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
             putpixel((x, y), (nr[j], ng[j], nb[j]))
     # Smooth Edges:
     image = image.filter(ImageFilter.SMOOTH)
-    # Save image
-    #image.save(f"{chosen_filename}.png", "PNG")
-    #filename = f"{chosen_filename}.png"
     return image
 
-'''
-@app.route('/')
-def home():
-    return redirect('/generate_diagram')
-'''
 @app.route('/generate_diagram', methods=['GET', 'POST'])
 def generate_diagram():
     if request.method == 'POST':
@@ -94,7 +83,7 @@ def generate_diagram():
         width = int(request.form['width'])
         height = int(request.form['height'])
         num_cells = int(request.form['num_cells'])
-        chosen_filename = str(request.form['chosen_filename'])
+        blend_multiplier = int(request.form['blend_multiplier'])
         mean_x = width // 2
         stdv_x = width // 2
         mean_y = height // 2
@@ -104,7 +93,7 @@ def generate_diagram():
         image = generate_voronoi_diagram(width=width, height=height, num_cells=num_cells,
                                          mean_x=mean_x, stdv_x=stdv_x, mean_y=mean_y, stdv_y=stdv_y,
                                          colorMap1=colorList1,colorMap2=colorList2, colorMap3=colorList3, 
-                                         chosen_filename=chosen_filename)
+                                         blend_multiplier=blend_multiplier)
         
         # Save the image to a temporary file 
         with tempfile.NamedTemporaryFile(suffix='.png', delete=False, dir='./PNG/') as f:

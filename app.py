@@ -27,6 +27,11 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
     else:
         blend_number = blend_multiplier
 
+    if num_cells > 256:
+        cell_num = 256
+    else:
+        cell_num = num_cells
+
     # Create variable instances
     image = Image.new("RGB", (width, height))
     putpixel = image.putpixel
@@ -43,7 +48,7 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
     colors3 = sns.color_palette(colorPallette3, blend_number)
     
     # Define sites and colors for each site
-    for i in range(num_cells):
+    for i in range(cell_num):
         nx.append(int(random.gauss(mean_x, stdv_x)))
         ny.append(int(random.gauss(mean_y, stdv_y)))
         
@@ -63,7 +68,7 @@ def generate_voronoi_diagram(width, height, num_cells, mean_x, stdv_x, mean_y, s
         for x in range(imgx):
             dmin = math.hypot(imgx-1, imgy-1)
             j = -1
-            for i in range(num_cells):
+            for i in range(cell_num):
                 d = math.hypot(nx[i]-x, ny[i]-y)
                 if d < dmin:
                     dmin = d
